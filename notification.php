@@ -16,23 +16,23 @@
         return;
     }
 
-    // Verifica se os parâmetros 'data_id' e 'type' estão presentes
-    if (!isset($_GET['data_id']) || !isset($_GET['type'])) {
+    // Verifica se os parâmetros 'id' e 'topic' estão presentes
+    if (!isset($_GET['id']) || !isset($_GET['topic'])) {
         http_response_code(400);
-        error_log("Erro: Parâmetros 'data_id' ou 'type' ausentes. Parâmetros recebidos: " . print_r($_GET, true));
-        echo "Parâmetros 'data_id' ou 'type' ausentes.";
+        error_log("Erro: Parâmetros 'id' ou 'topic' ausentes. Parâmetros recebidos: " . print_r($_GET, true));
+        echo "Parâmetros 'id' ou 'topic' ausentes.";
         return;
     }
 
-    // Verifica se o tipo é de pagamento
-    if ($_GET['type'] != "payment") {
+    // Verifica se o tópico é de pagamento
+    if ($_GET['topic'] != "payment") {
         http_response_code(400);
-        error_log("Erro: Tipo inválido. Tipo recebido: " . $_GET['type']);
+        error_log("Erro: Tipo inválido. Tipo recebido: " . $_GET['topic']);
         echo "Este endpoint lida apenas com notificações de pagamento.";
         return;
     }
 
-    $id = $_GET['data_id'];
+    $id = $_GET['id'];
 
     // Faz a requisição para a API do Mercado Pago para obter os detalhes do pagamento
     $curl = curl_init();
