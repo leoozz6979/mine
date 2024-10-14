@@ -16,21 +16,27 @@
         return;
     }
 
-    // Verifica se os parâmetros 'id' e 'topic' estão presentes
-    if (!isset($_GET['id']) || !isset($_GET['topic'])) {
-        http_response_code(400);
-        error_log("Erro: Parâmetros 'id' ou 'topic' ausentes. Parâmetros recebidos: " . print_r($_GET, true));
-        echo "Parâmetros 'id' ou 'topic' ausentes.";
-        return;
-    }
+// Verifica se os parâmetros 'id' e 'topic' ou 'data_id' e 'type' estão presentes
+if (isset($_GET['data_id']) && isset($_GET['type'])) {
+    $id = $_GET['data_id'];
+    $topic = $_GET['type'];
+} elseif (isset($_GET['id']) && isset($_GET['topic'])) {
+    $id = $_GET['id'];
+    $topic = $_GET['topic'];
+} else {
+    http_response_code(400);
+    error_log("Erro: Parâmetros 'id' ou 'topic' ausentes. Parâmetros recebidos: " . print_r($_GET, true));
+    echo "Parâmetros 'id' ou 'topic' ausentes.";
+    return;
+}
 
-    // Verifica se o tópico é de pagamento
-    if ($_GET['topic'] != "payment") {
-        http_response_code(400);
-        error_log("Erro: Tipo inválido. Tipo recebido: " . $_GET['topic']);
-        echo "Este endpoint lida apenas com notificações de pagamento.";
-        return;
-    }
+// Verifica se o tópico é de pagamento
+if ($topic != "payment") {
+    http_response_code(400);
+    error_log("Erro: Tipo inválido. Tipo recebido: " . $topic);
+    echo "Este endpoint lida apenas com notificações de pagamento.";
+    return;
+}
 
     $id = $_GET['id'];
 
