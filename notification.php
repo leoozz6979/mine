@@ -4,7 +4,7 @@ $host = getenv('DB_HOST') ?: '34.138.176.84';
 $user = getenv('DB_USER') ?: 'leopica';
 $password = getenv('DB_PASSWORD') ?: 'leo12345';
 $db = getenv('DB_NAME') ?: 'leozada';
-$accessToken = getenv('ACCESS_TOKEN') ?: 'APP_USR-8910149099291533-100422-44cd84d501e0b6c29a9c331bfe0c99da-558785318';
+$accessToken = getenv('ACCESS_TOKEN') ?: 'APP_USR-891104909929153-100422-44c8d5ad01e0b6c29a9c331bfe0c99da-558785318';
 
 // Verifica se a requisição é POST
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -51,7 +51,7 @@ curl_close($curl);
 
 $payment = json_decode($response, true);
 
-if ($payment["status"] === "approved") {
+if ($payment && $payment["status"] === "approved") {
     // Conecta ao banco de dados MySQL
     $conn = new mysqli($host, $user, $password, $db);
 
