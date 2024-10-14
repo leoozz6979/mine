@@ -1,10 +1,11 @@
 <?php
 // Carregar as informações de configuração do banco de dados e do token
-$host = getenv('DB_HOST') ?: '34.138.176.84';
+$host = getenv('DB_HOST') ?: '8.tcp.ngrok.io';
 $user = getenv('DB_USER') ?: 'leopica';
 $password = getenv('DB_PASSWORD') ?: 'Leo12345!';
 $db = getenv('DB_NAME') ?: 'leozada';
 $accessToken = getenv('ACCESS_TOKEN') ?: 'APP_USR-891104909929153-100422-44c8d5ad01e0b6c29a9c331bfe0c99da-558785318';
+$port = 19038; // Porta fornecida pelo ngrok
 
 // Verifica se a requisição é POST
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -51,9 +52,9 @@ curl_close($curl);
 
 $payment = json_decode($response, true);
 
-if ($payment && $payment["status"] === "approved") {
+if ($payment && isset($payment["status"]) && $payment["status"] === "approved") {
     // Conecta ao banco de dados MySQL
-    $conn = new mysqli($host, $user, $password, $db);
+    $conn = new mysqli($host, $user, $password, $db, $port);
 
     if ($conn->connect_error) {
         http_response_code(500);
