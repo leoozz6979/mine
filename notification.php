@@ -1,89 +1,65 @@
 <?php
-// Carregar as informações de configuração do banco de dados e do token
-$host = getenv('DB_HOST') ?: '8.tcp.ngrok.io';
-$user = getenv('DB_USER') ?: 'leopica';
-$password = getenv('DB_PASSWORD') ?: 'Leo12345!';
-$db = getenv('DB_NAME') ?: 'leozada';
-$accessToken = getenv('ACCESS_TOKEN') ?: 'APP_USR-891104909929153-100422-44c8d5ad01e0b6c29a9c331bfe0c99da-558785318';
-$port = 19038; // Porta fornecida pelo ngrok
+    $data = json_decode(file_get_contents("config.json"), true);
+    const HOST = $data["host"];
+    const USER = $data["user"];
+    const PASSWORD = $data["password"];
+    const DB = $data["db"];
+    const ACCESS_TOKEN = $data["access_token"];
 
-// Verifica se a requisição é POST
-if ($_SERVER["REQUEST_METHOD"] != "POST") {
-    http_response_code(400);
-    echo "Método de requisição não suportado. Utilize POST.";
-    return;
-}
+   if ($_SERVER["REQUEST_METHOD"] != "POST") {
+        http_response_code(500);
+        return;
+   }
+   if (!(isset($_GET['id'])) && !(isset($_GET['topic']))) {
+        http_response_code(500);
+        return;
+   }
+   if ($_GET['topic'] != "payment") {
+        http_response_code(500);
+        return;
+   }
 
-// Verifica se o 'id' e 'topic' estão presentes
-if (!isset($_GET['id']) || !isset($_GET['topic'])) {
-    http_response_code(400);
-    echo "Parâmetros 'id' ou 'topic' ausentes.";
-    return;
-}
+   $id = $_GET['id'];
 
-// Verifica se o tópico é de pagamento
-if ($_GET['topic'] != "payment") {
-    http_response_code(400);
-    echo "Este endpoint lida apenas com notificações de pagamento.";
-    return;
-}
+   $curl = curl_init();
 
-$id = $_GET['id'];
+   curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.mercadopago.com/v1/payments/' . $id,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+            'Authorization: Bearer ' . ACCESS_TOKEN
+        )
+   ));
 
-// Faz a requisição para a API do Mercado Pago para obter os detalhes do pagamento
-$curl = curl_init();
+   $payment = json_decode(curl_exec($curl), true);
 
-curl_setopt_array($curl, array(
-    CURLOPT_URL => 'https://api.mercadopago.com/v1/payments/' . $id,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET',
-    CURLOPT_HTTPHEADER => array(
-        'Authorization: Bearer ' . $accessToken
-    ),
-));
-
-$response = curl_exec($curl);
-curl_close($curl);
-
-$payment = json_decode($response, true);
-
-if ($payment && isset($payment["status"]) && $payment["status"] === "approved") {
-    // Conecta ao banco de dados MySQL
-    $conn = new mysqli($host, $user, $password, $db, $port);
+   if ($payment["status"] === "approved") {
+    
+    $conn = new mysqli(HOST, USER, PASSWORD, DB);
 
     if ($conn->connect_error) {
         http_response_code(500);
-        echo "Erro ao conectar ao banco de dados: " . $conn->connect_error;
+        $conn->close();
         return;
     }
-
-    // Pega o jogador relacionado ao pagamento
     $player = $payment["external_reference"];
 
-    // Insere um registro na tabela de pendências
-    $insertSql = "INSERT INTO autopix_pendings (id, player) VALUES (?, ?)";
-    
-    $stmt = $conn->prepare($insertSql);
-    $stmt->bind_param("ss", $id, $player);
+    $insertSql = "INSERT INTO autopix_pendings (id, player) " 
+            . "VALUES ('" . $id . "', '" . $player . "');";
 
-    if ($stmt->execute()) {
+    if ($conn->query($insertSql)) {
+        $conn->close();
         http_response_code(201);
-        echo "Pagamento aprovado e salvo com sucesso.";
     } else {
         http_response_code(500);
-        echo "Erro ao salvar informações de pagamento.";
+        $conn->close();
     }
-
-    $stmt->close();
-    $conn->close();
-} else {
-    http_response_code(400);
-    echo "Pagamento não aprovado.";
-}
-
+   }
+  
 ?>
