@@ -1,4 +1,4 @@
-]<?php
+<?php
     $host = getenv('DB_HOST') ?: '34.138.176.84';
     $user = getenv('DB_USER') ?: 'leopica';
     $password = getenv('DB_PASSWORD') ?: 'Leo12345!';
@@ -16,23 +16,23 @@
         return;
     }
 
-    // Verifica se o 'id' e 'topic' estão presentes
-    if (!isset($_GET['id']) || !isset($_GET['topic'])) {
+    // Verifica se os parâmetros 'data_id' e 'type' estão presentes
+    if (!isset($_GET['data_id']) || !isset($_GET['type'])) {
         http_response_code(400);
-        error_log("Erro: Parâmetros 'id' ou 'topic' ausentes. Parâmetros recebidos: " . print_r($_GET, true));
-        echo "Parâmetros 'id' ou 'topic' ausentes.";
+        error_log("Erro: Parâmetros 'data_id' ou 'type' ausentes. Parâmetros recebidos: " . print_r($_GET, true));
+        echo "Parâmetros 'data_id' ou 'type' ausentes.";
         return;
     }
 
-    // Verifica se o tópico é de pagamento
-    if ($_GET['topic'] != "payment") {
+    // Verifica se o tipo é de pagamento
+    if ($_GET['type'] != "payment") {
         http_response_code(400);
-        error_log("Erro: Tópico inválido. Tópico recebido: " . $_GET['topic']);
+        error_log("Erro: Tipo inválido. Tipo recebido: " . $_GET['type']);
         echo "Este endpoint lida apenas com notificações de pagamento.";
         return;
     }
 
-    $id = $_GET['id'];
+    $id = $_GET['data_id'];
 
     // Faz a requisição para a API do Mercado Pago para obter os detalhes do pagamento
     $curl = curl_init();
