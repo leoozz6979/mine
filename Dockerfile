@@ -1,14 +1,17 @@
-# Usa a imagem oficial do PHP com Apache
 FROM php:7.4-apache
 
-# Copia os arquivos do projeto para o diretório padrão do Apache
-COPY . /var/www/html/
+# Copia o script PHP para o diretório padrão do Apache
+COPY notification.php /var/www/html/
 
-# Renomeia o notification.php para index.php para evitar erro de diretório vazio
-RUN mv /var/www/html/notification.php /var/www/html/index.php
-
-# Instala extensões necessárias para MySQL
+# Instala extensões necessárias
 RUN docker-php-ext-install mysqli
 
-# Expor a porta 80
+# Variáveis de ambiente que serão configuradas no Render
+ENV DB_HOST="" \
+    DB_USER="" \
+    DB_PASSWORD="" \
+    DB_NAME="" \
+    ACCESS_TOKEN=""
+
+# Expõe a porta 80 para o serviço HTTP
 EXPOSE 80
