@@ -1,10 +1,10 @@
 <?php
-    $data = json_decode(file_get_contents("config.json"), true);
-    const HOST = $data["host"];
-    const USER = $data["user"];
-    const PASSWORD = $data["password"];
-    const DB = $data["db"];
-    const ACCESS_TOKEN = $data["access_token"];
+    $host = getenv('DB_HOST') ?: '34.138.176.84';
+    $user = getenv('DB_USER') ?: 'leopica';
+    $password = getenv('DB_PASSWORD') ?: 'Leo12345!';
+    $db = getenv('DB_NAME') ?: 'leozada';
+    $port = getenv('DB_PORT') ?: '19038';
+    $accessToken = getenv('ACCESS_TOKEN') ?: 'APP_USR-891104909929153-100422-44c8d5ad01e0b6c29a9c331bfe0c99da-558785318';
 
    if ($_SERVER["REQUEST_METHOD"] != "POST") {
         http_response_code(500);
@@ -33,15 +33,15 @@
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'GET',
         CURLOPT_HTTPHEADER => array(
-            'Authorization: Bearer ' . ACCESS_TOKEN
+            'Authorization: Bearer ' . $accessToken
         )
    ));
 
    $payment = json_decode(curl_exec($curl), true);
 
-   if ($payment["status"] === "approved") {
+   if ($payment && $payment["status"] === "approved") {
     
-    $conn = new mysqli(HOST, USER, PASSWORD, DB);
+    $conn = new mysqli($host, $user, $password, $db, $port);
 
     if ($conn->connect_error) {
         http_response_code(500);
