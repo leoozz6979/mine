@@ -2,7 +2,7 @@
 // Carregar as informações de configuração do banco de dados e do token
 $host = getenv('DB_HOST') ?: '34.138.176.84';
 $user = getenv('DB_USER') ?: 'leopica';
-$password = getenv('DB_PASSWORD') ?: 'leo12345';
+$password = getenv('DB_PASSWORD') ?: 'Leo12345!';
 $db = getenv('DB_NAME') ?: 'leozada';
 $accessToken = getenv('ACCESS_TOKEN') ?: 'APP_USR-891104909929153-100422-44c8d5ad01e0b6c29a9c331bfe0c99da-558785318';
 
